@@ -17,6 +17,9 @@ const cities = [
   { name: 'Taldykorgan', coordinates: [45.0156, 78.3735] },
   { name: 'Taraz', coordinates: [42.9000, 71.3667] },
   { name: 'Oral', coordinates: [51.2333, 51.3667] },
+  { name: 'Semey', coordinates: [50.4111, 80.2275] },
+  { name: 'Zhezkazgan', coordinates: [47.8048, 67.7143] },
+  { name: 'Aktau', coordinates: [43.65107, 51.16006] },
   { name: 'Ust-Kamenogorsk', coordinates: [49.9475, 82.6286] },
 ];
 
@@ -24,70 +27,61 @@ const kazakhstanCenter = [48.0196, 66.9237];
 const kazakhstanZoom = 6; // Начальный масштаб
 
 function App() {
-  const [selectedCity, setSelectedCity] = useState(null);
-  const [weatherData, setWeatherData] = useState(null);
-
-  const handleCityChange = (event) => {
-    const city = cities.find(city => city.name === event.target.value);
-    setSelectedCity(city);
-  };
+  const [weatherData, setWeatherData] = useState([]);
 
   useEffect(() => {
-    if (selectedCity) {
-      const fetchWeatherData = async () => {
-        const apiKey = 'a8dd1ef7392012e7083784026bac8e19'; 
-        const { coordinates } = selectedCity;
-        const [lat, lon] = coordinates;
+    const fetchData = async () => {
+      const apiKey = 'a8dd1ef7392012e7083784026bac8e19'; // Ваш API ключ OpenWeatherMap
+      const promises = cities.map(async (city) => {
+        const [lat, lon] = city.coordinates;
         try {
           const response = await axios.get(
             `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`
           );
-          setWeatherData(response.data);
+          return {
+            ...city,
+            weatherData: response.data,
+          };
         } catch (error) {
-          console.error('Error fetching weather data:', error);
+          console.error(`Error fetching weather data for ${city.name}:`, error);
+          return {
+            ...city,
+            weatherData: null,
+          };
         }
-      };
-  
-      fetchWeatherData();
-    }
-  }, [selectedCity]);
-  
+      });
 
+      const results = await Promise.all(promises);
+      setWeatherData(results);
+    };
 
-
-
-
+    fetchData();
+  }, []);
 
   return (
     <div className="App">
-      <select onChange={handleCityChange}>
-        <option value="">Select a city</option>
-        {cities.map(city => (
-          <option key={city.name} value={city.name}>{city.name}</option>
-        ))}
-      </select>
-
-
       <MapContainer center={kazakhstanCenter} zoom={kazakhstanZoom} scrollWheelZoom={true}>
         <TileLayer
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {selectedCity && (
-          <Marker position={selectedCity.coordinates}>
-
+        {weatherData.map((cityData) => (
+          <Marker key={cityData.name} position={cityData.coordinates}>
             <Popup>
-              {selectedCity.name}
-              {weatherData && (
-                <div>
-                  <p>Temperature: {weatherData.main.temp}°C</p>
-                  <p>Weather: {weatherData.weather[0].description}</p>
-                </div>
-              )}
+              <div>
+                <h2>{cityData.name}</h2>
+                {cityData.weatherData ? (
+                  <>
+                    <p>Temperature: {cityData.weatherData.main.temp}°C</p>
+                    <p>Weather: {cityData.weatherData.weather[0].description}</p>
+                  </>
+                ) : (
+                  <p>No weather data available</p>
+                )}
+              </div>
             </Popup>
-
           </Marker>
-        )}
+        ))}
       </MapContainer>
     </div>
   );

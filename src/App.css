@@ -3,11 +3,3 @@
   height: 100vh;
 }
 
-select {
-  position: absolute;
-  top: 12px;
-  left: 50px;
-  z-index: 1000;
-  padding: 12px; /* Увеличение внутреннего отступа для более крупных кнопок */
-  font-size: 16px; /* Увеличение размера шрифта текста в кнопках */
-}

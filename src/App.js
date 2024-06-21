@@ -31,7 +31,7 @@ function App() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const apiKey = 'a8dd1ef7392012e7083784026bac8e19';
+      const apiKey = 'a8dd1ef7392012e7083784026bac8e19'; // Ваш API ключ OpenWeatherMap
       const promises = cities.map(async (city) => {
         const [lat, lon] = city.coordinates;
         try {
@@ -69,12 +69,15 @@ function App() {
           <Marker key={cityData.name} position={cityData.coordinates}>
             <Popup>
               <div>
-                <h2>{cityData.name}</h2>
+                <h2>{cityData.name},KZ</h2>
                 {cityData.weatherData ? (
                   <>
+                   <h3>Weather: {cityData.weatherData.weather[0].description}</h3>
                     <p>Temperature: {cityData.weatherData.main.temp}°C</p>
                     <p>Feels like: {cityData.weatherData.main.feels_like}°C</p>
-                    <p>Weather: {cityData.weatherData.weather[0].description}</p>
+                    <p>Humidity: {cityData.weatherData.main.humidity}%</p>
+                    
+                    <p>Wind: {cityData.weatherData.wind.speed} m/s {cityData.weatherData.wind.deg}°</p>
                   </>
                 ) : (
                   <p>No weather data available</p>

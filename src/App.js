@@ -28,10 +28,9 @@ const kazakhstanZoom = 6; // Начальный масштаб
 
 function App() {
   const [weatherData, setWeatherData] = useState([]);
-
   useEffect(() => {
     const fetchData = async () => {
-      const apiKey = 'a8dd1ef7392012e7083784026bac8e19'; // Ваш API ключ OpenWeatherMap
+      const apiKey = 'a8dd1ef7392012e7083784026bac8e19'; 
       const promises = cities.map(async (city) => {
         const [lat, lon] = city.coordinates;
         try {
@@ -39,14 +38,16 @@ function App() {
             `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`
           );
           return {
-            ...city,
-            weatherData: response.data,
+            name: city.name,
+            coordinates: city.coordinates,
+            weatherData: response.data
           };
-        } catch (error) {
+        } 
+        catch (error) {
           console.error(`Error fetching weather data for ${city.name}:`, error);
           return {
             ...city,
-            weatherData: null,
+            weatherData: null
           };
         }
       });
@@ -65,7 +66,8 @@ function App() {
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {weatherData.map((cityData) => (
+        {
+          weatherData.map((cityData) => (
           <Marker key={cityData.name} position={cityData.coordinates}>
             <Popup>
               <div>
@@ -77,10 +79,9 @@ function App() {
                     <p>Feels like: {cityData.weatherData.main.feels_like}°C</p>
                     <p>Humidity: {cityData.weatherData.main.humidity}%</p>
                     
-                    <p>Wind: {cityData.weatherData.wind.speed} m/s {cityData.weatherData.wind.deg}°</p>
+                    <p>Wind: {cityData.weatherData.wind.speed} m/s</p>
                   </>
-                ) : (
-                  <p>No weather data available</p>
+                ) : (<p>No weather data available</p>
                 )}
               </div>
             </Popup>
